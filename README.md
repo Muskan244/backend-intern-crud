@@ -27,7 +27,7 @@ A **FastAPI-based Blog CRUD API** with authentication, likes, and comments. Incl
 
 ### 1️⃣ Clone the repository
 ```bash
-git clone https://github.com/<your-username>/backend-intern-crud.git
+git clone https://github.com/Muskan244/backend-intern-crud.git
 cd backend-intern-crud
 ````
 
