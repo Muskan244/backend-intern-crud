@@ -1,11 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from .. import models, deps
+
+bearer_scheme = HTTPBearer()
 
 router = APIRouter(prefix="/api/posts", tags=["Likes"])
 
 @router.post("/{blog_id}/like")
-def like_post(blog_id: int, db: Session = Depends(deps.get_db), current_user=Depends(deps.get_current_user)):
+def like_post(blog_id: int, db: Session = Depends(deps.get_db), current_user=Depends(deps.get_current_user), credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
     post = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")

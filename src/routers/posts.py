@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from .. import models, deps
 from ..schemas import BlogResponse, BlogCreate, BlogUpdate
+
+bearer_scheme = HTTPBearer()
 
 router = APIRouter(prefix="/api/posts", tags=["Posts"])
 
@@ -9,7 +12,8 @@ router = APIRouter(prefix="/api/posts", tags=["Posts"])
 def create_post(
     post: BlogCreate,
     db: Session = Depends(deps.get_db),
-    current_user=Depends(deps.get_current_user)
+    current_user=Depends(deps.get_current_user),
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
 ):
     new_post = models.Blog(
         title=post.title,
@@ -36,7 +40,7 @@ def get_post(post_id: int, db: Session = Depends(deps.get_db)):
 
 
 @router.put("/{post_id}")
-def update_post(post_id: int, post_data: BlogUpdate, db: Session = Depends(deps.get_db), current_user=Depends(deps.get_current_user)):
+def update_post(post_id: int, post_data: BlogUpdate, db: Session = Depends(deps.get_db), current_user=Depends(deps.get_current_user), credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
     post = db.query(models.Blog).filter(models.Blog.id == post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -54,7 +58,8 @@ def update_post(post_id: int, post_data: BlogUpdate, db: Session = Depends(deps.
 def delete_post(
     post_id: int,
     db: Session = Depends(deps.get_db),
-    current_user=Depends(deps.get_current_user)
+    current_user=Depends(deps.get_current_user),
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
 ):
     post = db.query(models.Blog).filter(models.Blog.id == post_id).first()
     if not post:

@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .. import models, deps, schemas
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+bearer_scheme = HTTPBearer()
 
 router = APIRouter(prefix="/api/posts", tags=["Comments"])
 
@@ -9,7 +12,8 @@ def add_comment(
     blog_id: int,
     comment_data: schemas.CommentBase,  # Expect content from body
     db: Session = Depends(deps.get_db),
-    current_user=Depends(deps.get_current_user)
+    current_user=Depends(deps.get_current_user),
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
 ):
     blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
     if not blog:
